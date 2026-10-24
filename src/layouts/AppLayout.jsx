@@ -67,7 +67,7 @@ export const AppLayout = () => {
                     }`
                   }
                 >
-                  <Icon className="w-3.5 h-3.5" />
+                  {Icon && <Icon className="w-3.5 h-3.5" />}
                   <span>{item.name}</span>
                 </NavLink>
               );
@@ -158,7 +158,7 @@ export const AppLayout = () => {
                   }`
                 }
               >
-                <Icon className="w-4 h-4" />
+                {Icon && <Icon className="w-4 h-4" />}
                 <span className="text-[10px]">{item.name}</span>
               </NavLink>
             );

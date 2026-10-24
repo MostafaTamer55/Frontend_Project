@@ -12,9 +12,11 @@ import {
   ArrowRight,
   ChevronRight,
   ExternalLink,
+  Check,
 } from 'lucide-react';
 
 import { getLectureById } from '../data/mockLectures';
+import { useProgress } from '../../progress/services/progressService';
 
 /**
  * Dedicated Video Page matching:
@@ -29,6 +31,20 @@ export const LectureVideoPage = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [progress, setProgress] = useState(38); // 38% progress for demo
+
+  const { progressData, markLectureWatched, toggleLectureWatched } = useProgress();
+  const currentLectureProgress = progressData.lectures?.find(
+    (l) => l.id === String(currentId) || l.number?.endsWith(String(currentId))
+  );
+  const isWatched = currentLectureProgress?.status === 'watched';
+
+  const handleTogglePlay = () => {
+    const next = !isPlaying;
+    setIsPlaying(next);
+    if (next) {
+      markLectureWatched(currentId);
+    }
+  };
 
   // Current, Previous, and Next lecture calculations
   const currentNumberStr = lecture.number || `Lecture ${currentId.toString().padStart(2, '0')}`;
@@ -89,6 +105,7 @@ export const LectureVideoPage = () => {
                 href={lecture.externalDriveUrl || 'https://drive.google.com'}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => markLectureWatched(currentId)}
                 className="bg-[#CCEB74] hover:bg-[#bfee50] active:scale-95 text-[#15313C] font-semibold text-xs sm:text-sm py-2.5 px-5 rounded-full inline-flex items-center gap-2 shadow-xs transition-all cursor-pointer"
               >
                 <span>Open video</span>
@@ -104,7 +121,7 @@ export const LectureVideoPage = () => {
               {/* Center Big Lime Play/Pause Button */}
               <button
                 type="button"
-                onClick={() => setIsPlaying(!isPlaying)}
+                onClick={handleTogglePlay}
                 className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#CCEB74] hover:bg-[#bfee50] active:scale-95 text-[#15313C] flex items-center justify-center transition-all shadow-[0_10px_35px_rgba(204,235,116,0.4)] cursor-pointer group z-20"
                 title={isPlaying ? 'Pause' : 'Play'}
               >
@@ -138,7 +155,7 @@ export const LectureVideoPage = () => {
               {/* Play/Pause icon button */}
               <button
                 type="button"
-                onClick={() => setIsPlaying(!isPlaying)}
+                onClick={handleTogglePlay}
                 className="text-white hover:text-[#CCEB74] transition-colors cursor-pointer"
               >
                 {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
@@ -199,14 +216,33 @@ export const LectureVideoPage = () => {
                 Lecture title
               </h2>
 
-              {/* Pills: Video & PDF */}
-              <div className="flex items-center gap-2 mt-3">
+              {/* Pills: Video & PDF & Watched Status */}
+              <div className="flex items-center gap-2 mt-3 flex-wrap">
                 <span className="px-3 py-0.5 rounded-full text-xs font-medium bg-[#F5F8F9] border border-[#D7E0E3] text-[#3A5560]">
                   Video
                 </span>
                 <span className="px-3 py-0.5 rounded-full text-xs font-medium bg-[#F5F8F9] border border-[#D7E0E3] text-[#3A5560]">
                   PDF
                 </span>
+                <button
+                  type="button"
+                  onClick={() => toggleLectureWatched(currentId)}
+                  className={`px-3 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1 cursor-pointer transition-colors ${
+                    isWatched
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'
+                  }`}
+                  title="Click to toggle watched completion status"
+                >
+                  {isWatched ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>Watched</span>
+                    </>
+                  ) : (
+                    <span>Mark as Watched</span>
+                  )}
+                </button>
               </div>
             </div>
 

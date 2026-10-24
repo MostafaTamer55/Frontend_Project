@@ -9,9 +9,11 @@ import {
   FolderArchive,
   ArrowRight,
   ArrowLeft,
+  Check,
 } from 'lucide-react';
 
 import { getLectureById } from '../data/mockLectures';
+import { useProgress } from '../../progress/services/progressService';
 
 /**
  * Lecture Details / Player Page matching Figma screen/lectures/details/default
@@ -26,6 +28,12 @@ export const LecturePlayerPage = () => {
   const { lectureId = '2' } = useParams();
   const currentId = parseInt(lectureId, 10) || 2;
   const lecture = getLectureById(currentId);
+
+  const { progressData, toggleLectureWatched } = useProgress();
+  const currentLectureProgress = progressData.lectures?.find(
+    (l) => l.id === String(currentId) || l.number?.endsWith(String(currentId))
+  );
+  const isWatched = currentLectureProgress?.status === 'watched';
 
   // Pad lecture number for display (e.g. "Lecture 02")
   const currentNumberStr = lecture.number || `Lecture ${currentId.toString().padStart(2, '0')}`;
@@ -58,10 +66,27 @@ export const LecturePlayerPage = () => {
           </p>
         </div>
 
-        {/* Top Right Sample Placeholders Badge */}
-        <div className="inline-flex items-center gap-1.5 text-xs text-[#6B8089] font-medium self-start sm:self-center">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#15313C]" />
-          <span>Sample placeholders</span>
+        {/* Top Right Status Badge */}
+        <div className="flex items-center gap-2 self-start sm:self-center">
+          <button
+            type="button"
+            onClick={() => toggleLectureWatched(currentId)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs ${
+              isWatched
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
+                : 'bg-[#EFF7CD] text-[#15313C] border border-[#dceca2] hover:bg-[#e6f3b7]'
+            }`}
+            title="Click to toggle watched completion status"
+          >
+            {isWatched ? (
+              <>
+                <Check className="w-3.5 h-3.5 stroke-[2.75] text-[#15803d]" />
+                <span className="font-bold text-[#15803d]">Watched</span>
+              </>
+            ) : (
+              <span>Mark as Watched</span>
+            )}
+          </button>
         </div>
       </div>
 
