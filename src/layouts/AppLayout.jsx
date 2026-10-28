@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../features/auth/context/AuthContext';
 import {
   LayoutGrid,
@@ -11,13 +11,19 @@ import {
   ChevronDown,
   LogOut,
   Settings,
+  SlidersHorizontal,
   Sparkles,
 } from 'lucide-react';
 
 export const AppLayout = () => {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+
+  const isAccountActive =
+    location.pathname === '/profile' ||
+    location.pathname === '/settings';
 
   const handleLogout = () => {
     logout();
@@ -29,15 +35,14 @@ export const AppLayout = () => {
     { name: 'Lectures', path: '/lectures', icon: BookOpen },
     { name: 'Sections', path: '/sections', icon: Layers },
     { name: 'Exam Bank', path: '/exams', icon: FolderArchive },
-    { name: 'Progress', path: '/progress', icon: TrendingUp },
   ];
 
   return (
     <div
-      className="min-h-screen text-[#15313C] selection:bg-[#CCEB74] selection:text-[#15313C] flex flex-col"
+      className="min-h-screen text-[#15313C] selection:bg-[#CCEB74] selection:text-[#15313C] flex flex-col relative overflow-x-hidden"
       style={{
         background:
-          'radial-gradient(circle at 10% 12%, #F1FBD2 0%, rgba(248, 250, 245, 0.5) 35%, #F8FAF5 65%), radial-gradient(circle at 88% 50%, #E7F6BE 0%, rgba(248, 250, 245, 0.45) 35%, #F8FAF5 70%), #F8FAF5',
+          'radial-gradient(circle at 5% 12%, #F0FAD0 0%, rgba(248, 250, 246, 0.6) 32%, transparent 65%), radial-gradient(circle at 18% 42%, #E7F7BA 0%, rgba(248, 250, 246, 0.5) 28%, transparent 60%), radial-gradient(circle at 95% 26%, #E0F2F6 0%, rgba(248, 250, 246, 0.55) 32%, transparent 65%), radial-gradient(circle at 86% 70%, #E8F5F8 0%, rgba(248, 250, 246, 0.45) 28%, transparent 60%), #F8FAF6',
       }}
     >
       {/* Top Floating Navigation Bar (Figma screen/dashboard/first-time-user) */}
@@ -79,61 +84,110 @@ export const AppLayout = () => {
             <button
               type="button"
               onClick={() => setAccountMenuOpen(!accountMenuOpen)}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold text-[#15313C] bg-white border border-[#D7E0E3] hover:bg-slate-50 transition-colors shadow-xs cursor-pointer"
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all shadow-xs cursor-pointer ${
+                isAccountActive
+                  ? 'bg-[#EAF7C6] text-[#15313C] border border-[#CCEB74]/80 hover:bg-[#E2F3B6]'
+                  : 'bg-white text-[#15313C] border border-[#D7E0E3] hover:bg-slate-50'
+              }`}
             >
-              <User className="w-3.5 h-3.5 text-[#6B8089]" />
+              <User
+                className={`w-3.5 h-3.5 ${
+                  isAccountActive ? 'text-[#15313C]' : 'text-[#6B8089]'
+                }`}
+              />
               <span>Account</span>
               <ChevronDown
-                className={`w-3.5 h-3.5 text-[#6B8089] transition-transform duration-200 ${
-                  accountMenuOpen ? 'rotate-180' : ''
-                }`}
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                  isAccountActive ? 'text-[#15313C]' : 'text-[#6B8089]'
+                } ${accountMenuOpen ? 'rotate-180' : ''}`}
               />
             </button>
 
-            {/* Account Menu Popover */}
+            {/* Account Menu Popover (matches Figma Image 1) */}
             {accountMenuOpen && (
               <>
                 <div
                   className="fixed inset-0 z-40"
                   onClick={() => setAccountMenuOpen(false)}
                 />
-                <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white shadow-[0_15px_35px_rgba(21,49,60,0.12)] border border-[#EAF0F2] py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="px-4 py-2.5 border-b border-slate-100">
-                    <p className="text-xs font-bold text-[#15313C] truncate">
-                      {currentUser?.name || 'Eman R.'}
+                <div className="absolute right-0 mt-2 w-60 rounded-[24px] bg-white shadow-[0_20px_45px_rgba(21,49,60,0.14)] border border-[#EAF0F2] p-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  {/* User info header */}
+                  <div className="px-3.5 pt-3 pb-3">
+                    <p className="text-sm font-bold text-[#15313C] truncate leading-tight">
+                      {currentUser?.name || 'Student name'}
                     </p>
-                    <p className="text-[11px] text-[#6B8089] truncate">
-                      {currentUser?.email || 'student@dsp.edu'}
+                    <p className="text-xs text-[#8DA6AF] truncate mt-0.5 font-normal">
+                      {currentUser?.email || 'name@example.com'}
                     </p>
                   </div>
 
-                  <div className="py-1">
+                  {/* Nav Links */}
+                  <div className="space-y-1">
+                    {/* Profile */}
+                    <Link
+                      to="/profile"
+                      onClick={() => setAccountMenuOpen(false)}
+                      className={`flex items-center gap-3 px-3.5 py-2.5 text-sm transition-colors ${
+                        location.pathname === '/profile'
+                          ? 'bg-[#EAF7C6] text-[#15313C] font-semibold rounded-2xl'
+                          : 'text-[#15313C] hover:bg-[#F5F8F9] rounded-2xl font-medium'
+                      }`}
+                    >
+                      <User className="w-4 h-4 text-[#15313C] stroke-[2]" />
+                      <span>Profile</span>
+                    </Link>
+
+                    {/* Settings */}
                     <Link
                       to="/settings"
                       onClick={() => setAccountMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-[#3A5560] hover:bg-[#F5F8F9] hover:text-[#15313C] transition-colors"
+                      className={`flex items-center gap-3 px-3.5 py-2.5 text-sm transition-colors ${
+                        location.pathname === '/settings'
+                          ? 'bg-[#EAF7C6] text-[#15313C] font-semibold rounded-2xl'
+                          : 'text-[#15313C] hover:bg-[#F5F8F9] rounded-2xl font-medium'
+                      }`}
                     >
-                      <Settings className="w-4 h-4 text-[#6B8089]" />
-                      <span>Account Settings</span>
+                      <SlidersHorizontal className="w-4 h-4 text-[#15313C] stroke-[2.2]" />
+                      <span>Settings</span>
                     </Link>
+
+                    {/* Progress */}
                     <Link
                       to="/progress"
                       onClick={() => setAccountMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-[#3A5560] hover:bg-[#F5F8F9] hover:text-[#15313C] transition-colors"
+                      className={`flex items-center gap-3 px-3.5 py-2.5 text-sm transition-colors ${
+                        location.pathname === '/progress'
+                          ? 'bg-[#EAF7C6] text-[#15313C] font-semibold rounded-2xl'
+                          : 'text-[#15313C] hover:bg-[#F5F8F9] rounded-2xl font-medium'
+                      }`}
                     >
-                      <Sparkles className="w-4 h-4 text-[#6B8089]" />
-                      <span>My Progress</span>
+                      <svg
+                        className="w-4 h-4 text-[#15313C] shrink-0"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                      </svg>
+                      <span>Progress</span>
                     </Link>
                   </div>
 
-                  <div className="pt-1 border-t border-slate-100">
+                  {/* Divider */}
+                  <div className="border-t border-[#EAF0F2] my-2" />
+
+                  {/* Log Out */}
+                  <div>
                     <button
                       type="button"
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left"
+                      className="w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-semibold text-[#15313C] hover:bg-red-50 hover:text-red-600 rounded-2xl transition-colors cursor-pointer text-left"
                     >
-                      <LogOut className="w-4 h-4" />
-                      <span>Sign Out</span>
+                      <LogOut className="w-4 h-4 stroke-[2]" />
+                      <span>Log Out</span>
                     </button>
                   </div>
                 </div>

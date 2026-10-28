@@ -37,8 +37,9 @@ import ExamResultsPage from '../features/exams/pages/ExamResultsPage';
 // Progress (Figma 09)
 import ProgressPage from '../features/progress/pages/ProgressPage';
 
-// Settings (Figma 10)
+// Settings & Profile (Figma 10)
 import SettingsPage from '../features/settings/pages/SettingsPage';
+import ProfilePage from '../features/settings/pages/ProfilePage';
 
 // 404
 import NotFoundPage from '../pages/NotFoundPage';
@@ -81,8 +82,13 @@ export const AppRoutes = () => {
           {/* Progress & Analytics */}
           <Route path="/progress" element={<ProgressPage />} />
 
-          {/* Profile & Settings */}
+          {/* Profile & Settings (Figma 10) */}
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route
+            path="/settings/change-password"
+            element={<SettingsPage defaultView="change-password" />}
+          />
         </Route>
 
         {/* Distraction-Free Exam Runner (Figma Page 08 Full-Screen Assessment) */}
